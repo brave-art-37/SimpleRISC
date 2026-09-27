@@ -33,7 +33,7 @@ flowchart TB
     EX/MA --> |"program_counter, alu_result, instruction, control_signals"| MA/RW
 
     %% RW
-    MA/RW --> |"destination_register(instruction)"| Write_Address_MUX
+    MA/RW --> |"destination_register(instruction), is_call(control_signals)"| Write_Address_MUX
     Return_Address_Register --> Write_Address_MUX
     Write_Address_MUX --> |"address_port"| Register_File
     MA/RW --> |"program_counter, load_result, alu_result, is_load(control_signals), is_call(control_signals)"| Write_Data_MUX
