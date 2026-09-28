@@ -1,12 +1,15 @@
-module program_counter(
-    input logic [31:0] branch_program_counter,
-    input logic is_branch_taken,
+module program_counter_manager(
     input logic clk,
     input logic reset,
-    output logic [31:0] current_program_counter
+    input logic is_branch_taken,
+    input logic [31:0] branch_program_counter,
+    output logic [31:0] program_counter
 );
 
+logic [31:0] current_program_counter;
 logic [31:0] next_program_counter;
+
+assign program_counter = current_program_counter;
 
 mux #(.WIDTH(32)) program_counter_mux(
     .a(current_program_counter + 32'd4), //next instruction

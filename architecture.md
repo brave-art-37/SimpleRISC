@@ -9,12 +9,16 @@ flowchart TB
 
     %% OF
     IF/OF --> |"instruction"| Control_Unit
+    IF/OF --> |"first_source_register(instruction)"| First_Operand_MUX
+    IF/OF --> |"destination_register(instruction), second_source_register(instruction)"| Second_Operand_MUX
     Control_Unit --> |"is_return"| First_Operand_MUX
     Control_Unit --> |"is_store"| Second_Operand_MUX
+    Return_Address_Register --> First_Operand_MUX
     First_Operand_MUX --> |"first_operand_register"| Register_File
     Second_Operand_MUX --> |"second_operand_register"| Register_File
     Control_Unit --> |"control_signals"| OF/EX
     Register_File --> |"first_operand, second_operand"| OF/EX
+    IF/OF --> |"program_counter, instruction"| Immediate_Branch_Target
     Immediate_Branch_Target --> |"branch_target, immediate"| OF/EX
     IF/OF --> |"program_counter, instruction"| OF/EX
 

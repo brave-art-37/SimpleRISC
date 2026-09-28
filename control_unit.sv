@@ -1,7 +1,5 @@
 module control_unit(
     input logic [31:0] instruction,
-    input logic flags_equal,
-    input logic flags_greater,
     output logic is_add,
     output logic is_sub,
     output logic is_mul,
@@ -18,7 +16,6 @@ module control_unit(
     output logic is_nop,
     output logic is_load,
     output logic is_store,
-    output logic is_branch_taken,
     output logic is_branch_equal,
     output logic is_branch_greater,
     output logic is_unconditional_branch,
@@ -84,6 +81,7 @@ always_comb begin
 
         RET: begin
             is_return = 1;
+            is_write_back = 0;
         end
 
         NOP: begin
@@ -189,7 +187,6 @@ always_comb begin
 
     endcase
 
-    is_branch_taken = (flags_equal && is_branch_equal) || (flags_greater && is_branch_greater) || is_unconditional_branch;
 
 end
 
