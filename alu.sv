@@ -88,7 +88,7 @@ logical_unit alu_logical_unit(
 );
 
 move_unit alu_move_unit(
-    .first_operand(first_operand),
+    .operand(second_operand_vs_immediate),
     .is_mov(is_mov),
     .result(move_unit_line)
 );

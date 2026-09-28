@@ -24,6 +24,9 @@ always @(posedge clk) begin
     $display("");
     $display("========== CYCLE %0d ==========", cycle);
 
+    // ----------------------------
+    // pipeline instructions
+    // ----------------------------
     $display("PC   = %h",
         dut.program_counter_from_program_counter_manager);
 
@@ -38,6 +41,76 @@ always @(posedge clk) begin
 
     $display("MARW = %h",
         dut.instruction_from_MARW);
+
+
+    // ----------------------------
+    // EX stage controls
+    // ----------------------------
+    $display("");
+    $display("--- EX STAGE ---");
+
+    $display("EX MOV       = %b",
+        dut.is_mov_from_OFEX);
+
+    $display("EX IMMEDIATE = %b",
+        dut.is_immediate_from_OFEX);
+
+    $display("EX WB        = %b",
+        dut.is_write_back_from_OFEX);
+
+    $display("EX first operand  = %h",
+        dut.first_operand_from_OFEX);
+
+    $display("EX second operand = %h",
+        dut.second_operand_from_OFEX);
+
+    $display("EX immediate      = %h",
+        dut.immediate_from_OFEX);
+
+    $display("EX ALU result     = %h",
+        dut.alu_result_from_alu);
+
+
+    // ----------------------------
+    // EXMA stage
+    // ----------------------------
+    $display("");
+    $display("--- EXMA STAGE ---");
+
+    $display("EXMA ALU result = %h",
+        dut.alu_result_from_EXMA);
+
+    $display("EXMA WB         = %b",
+        dut.is_write_back_from_EXMA);
+
+
+    // ----------------------------
+    // MARW / writeback stage
+    // ----------------------------
+    $display("");
+    $display("--- WRITEBACK STAGE ---");
+
+    $display("MARW WB        = %b",
+        dut.is_write_back_from_MARW);
+
+    $display("MARW LOAD      = %b",
+        dut.is_load_from_MARW);
+
+    $display("MARW CALL      = %b",
+        dut.is_call_from_MARW);
+
+    $display("WRITE PORT     = %d",
+        dut.write_port_from_write_address_mux);
+
+    $display("WRITE DATA     = %h",
+        dut.write_data_from_write_data_mux);
+
+
+    // ----------------------------
+    // register file
+    // ----------------------------
+    $display("");
+    $display("--- REGISTERS ---");
 
     $display("R0   = %h  R1  = %h  R2  = %h  R3  = %h",
         dut.register_file.registers[0],
@@ -124,29 +197,29 @@ initial begin
     // --------------------------------------------------
     // PROGRAM
     //
-    // Put encoded SimpleRISC instructions here.
-    //
-    // Example:
-    //
-    // dut.instruction_memory.memory[0] = <instruction>;
-    // dut.instruction_memory.memory[1] = <instruction>;
-    // dut.instruction_memory.memory[2] = <instruction>;
-    //
+    // MOV immediate -> R1
     // --------------------------------------------------
 
+    dut.instruction_memory.memory[0] =
+        32'b01001100010000001010101010101010;
 
+
+    // --------------------------------------------------
     // synchronous reset
+    // --------------------------------------------------
     @(posedge clk);
     #1;
     reset = 0;
 
 
+    // --------------------------------------------------
     // allow pipeline to execute program
-    run_cycles(20);
+    // --------------------------------------------------
+    run_cycles(6);
 
 
     // --------------------------------------------------
-    // CHECK RESULTS
+    // FINAL REGISTER FILE
     // --------------------------------------------------
 
     $display("");
@@ -159,6 +232,10 @@ initial begin
             dut.register_file.registers[i]
         );
 
+
+    // --------------------------------------------------
+    // FINAL CPU STATE
+    // --------------------------------------------------
 
     $display("");
     $display("========== FINAL CPU STATE ==========");
@@ -189,11 +266,11 @@ initial begin
     );
 
 
-    // Once we insert an actual program:
-    //
-    // check_register(1, expected_value);
-    // check_register(2, expected_value);
-    // ...
+    // --------------------------------------------------
+    // CHECK
+    // --------------------------------------------------
+
+    check_register(1, 32'b1010101010101010);
 
 
     $display("");

@@ -1,18 +1,18 @@
 module test;
 
-    logic [31:0] first_operand;
+    logic [31:0] operand;
     logic is_mov;
     logic [31:0] result;
 
     move_unit dut(
-        .first_operand(first_operand),
+        .operand(operand),
         .is_mov(is_mov),
         .result(result)
     );
 
     initial begin
 
-        first_operand = 32'h12345678;
+        operand = 32'h12345678;
 
         // MOV disabled
         is_mov = 0;
@@ -20,8 +20,8 @@ module test;
         #1;
 
         $display(
-            "MOV disabled: first=%h is_mov=%d result=%h",
-            first_operand,
+            "MOV disabled: operand=%h is_mov=%d result=%h",
+            operand,
             is_mov,
             result
         );
@@ -32,8 +32,8 @@ module test;
         #1;
 
         $display(
-            "MOV enabled: first=%h is_mov=%d result=%h",
-            first_operand,
+            "MOV enabled: operand=%h is_mov=%d result=%h",
+            operand,
             is_mov,
             result
         );

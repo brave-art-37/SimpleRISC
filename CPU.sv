@@ -542,7 +542,7 @@ memory_access_unit memory_access_unit(
 write_address_mux write_address_mux(
     .is_call(is_call_from_MARW),
     .return_address(RETURN_ADDRESS_REGISTER),
-    .destination_register(instruction_from_MARW[26:23]),
+    .destination_register(instruction_from_MARW[25:22]),
 
     .write_port(write_port_from_write_address_mux)
 );

@@ -12,9 +12,9 @@ module IFOF(
 always_ff @( posedge clk ) begin
     instruction_out <= instruction_in;
     program_counter_out <= program_counter_in;
-    destination_register <= instruction_in[26:23];
-    first_source_register <= instruction_in[22:19];
-    second_source_register <= instruction_in[18:15];
+    destination_register <= instruction_in[25:22];
+    first_source_register <= instruction_in[21:18];
+    second_source_register <= instruction_in[17:14];
 end
 
 endmodule

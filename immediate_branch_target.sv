@@ -25,7 +25,7 @@ always_comb begin
     end
     else begin
         // normal immediate
-        immediate = {{16{half_immediate[15]}}, half_immediate};
+        immediate = {16'b0, half_immediate};
     end
 
     // signed branch offset, word-aligned
