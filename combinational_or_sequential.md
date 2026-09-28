@@ -30,9 +30,9 @@ IF/OF x
 
 OF/EX x
 
-EX/MA
+EX/MA x
 
-MA/RW
+MA/RW x
 
 ## Mixed
 

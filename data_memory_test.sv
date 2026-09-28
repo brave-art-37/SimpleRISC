@@ -6,7 +6,7 @@ module test;
     logic [31:0] write_data;
     logic [31:0] read_data;
 
-    memory dut(
+    data_memory dut(
         .address(address),
         .clk(clk),
         .write_enable(write_enable),

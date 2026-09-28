@@ -18,6 +18,6 @@ mux #(.WIDTH(32)) branch_unit(
     .c(branch_program_counter)
 );
 
-assign is_branch_taken = (flags_equal && is_branch_equal) || (flags_greater && is_branch_greater) || is_unconditional_branch;
+assign is_branch_taken = (flags_equal && is_branch_equal) || (flags_greater && is_branch_greater) || is_unconditional_branch || is_return;
 
 endmodule

@@ -6,8 +6,8 @@ module test;
     logic [31:0] memory_data_register [0:1];
 
     logic [31:0] address;
-    logic write_enable;
-    logic [31:0] write_data;
+    logic store_enable;
+    logic [31:0] store_data;
     logic [31:0] load_result;
 
     memory_access_unit dut(
@@ -16,8 +16,8 @@ module test;
         .memory_address_register(memory_address_register),
         .memory_data_register(memory_data_register),
         .address(address),
-        .write_enable(write_enable),
-        .write_data(write_data),
+        .store_enable(store_enable),
+        .store_data(store_data),
         .load_result(load_result)
     );
 
@@ -34,8 +34,8 @@ module test;
 
         // no operation
         $display(
-            "NOP: address=%0d write_enable=%b write_data=%h load_result=%h",
-            address, write_enable, write_data, load_result
+            "NOP: address=%0d store_enable=%b store_data=%h load_result=%h",
+            address, store_enable, store_data, load_result
         );
 
         // LOAD
@@ -45,8 +45,8 @@ module test;
         #1;
 
         $display(
-            "LOAD: address=%0d write_enable=%b write_data=%h load_result=%h",
-            address, write_enable, write_data, load_result
+            "LOAD: address=%0d store_enable=%b store_data=%h load_result=%h",
+            address, store_enable, store_data, load_result
         );
 
         // STORE
@@ -56,8 +56,19 @@ module test;
         #1;
 
         $display(
-            "STORE: address=%0d write_enable=%b write_data=%h load_result=%h",
-            address, write_enable, write_data, load_result
+            "STORE: address=%0d store_enable=%b store_data=%h load_result=%h",
+            address, store_enable, store_data, load_result
+        );
+
+        // simultaneous store and load
+        is_load = 1;
+        is_store = 1;
+
+        #1;
+
+        $display(
+            "STORE: address=%0d store_enable=%b store_data=%h load_result=%h",
+            address, store_enable, store_data, load_result
         );
 
         $finish;
