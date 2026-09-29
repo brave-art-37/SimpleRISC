@@ -74,7 +74,7 @@ IF → IFOF → OF → OFEX → EX → EXMA → MA → MARW → RW
 
 ### Main datapath
 
-View SimpleRISC.svg
+![SimpleRISC Architecture](SimpleRISC.svg)
 
 ---
 
