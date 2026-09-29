@@ -178,6 +178,26 @@ logic [3:0] write_port_from_write_address_mux;
 logic [31:0] write_data_from_write_data_mux;
 
 
+// flags
+logic flags_equal;
+logic flags_greater;
+
+always_ff @(posedge clk) begin
+    if (reset) begin
+        flags_equal   <= 1'b0;
+        flags_greater <= 1'b0;
+    end
+    else if (is_cmp_from_OFEX) begin
+        flags_equal   <= flags_equal_from_alu;
+        flags_greater <= flags_greater_from_alu;
+    end
+    else begin
+        flags_equal <= flags_equal;
+        flags_greater <= flags_greater;
+    end
+end
+
+// program counter
 program_counter_manager program_counter_manager(
     .clk(clk),
     .reset(reset),
@@ -489,8 +509,8 @@ branch_unit branch_unit(
     .is_branch_equal(is_branch_equal_from_OFEX),
     .is_branch_greater(is_branch_greater_from_OFEX),
     .is_unconditional_branch(is_unconditional_branch_from_OFEX),
-    .flags_equal(flags_equal_from_alu),
-    .flags_greater(flags_greater_from_alu),
+    .flags_equal(flags_equal),
+    .flags_greater(flags_greater),
 
     .is_branch_taken(is_branch_taken_from_branch_unit),
     .branch_program_counter(branch_program_counter_from_branch_unit)
