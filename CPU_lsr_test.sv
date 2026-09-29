@@ -157,7 +157,7 @@ always @(posedge clk) begin
             dut.is_branch_greater_from_control_unit);
 
     if (dut.is_unconditional_branch_from_control_unit !== 1'b0)
-        $display("OF B                 = %b",
+        $display("OF UB                 = %b",
             dut.is_unconditional_branch_from_control_unit);
 
     if (dut.is_call_from_control_unit !== 1'b0)

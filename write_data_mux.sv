@@ -11,7 +11,7 @@ logic [31:0] a[0:3];
 
 assign a[0] = alu_result;
 assign a[1] = load_result;
-assign a[2] = program_counter + 32'd4;
+assign a[2] = program_counter + 32'd2;
 assign a[3] = 32'd0;
 
 logic s[0:1];

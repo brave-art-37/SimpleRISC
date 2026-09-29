@@ -90,6 +90,7 @@ always_comb begin
         end
 
         CALL: begin
+            is_unconditional_branch = 1;
             is_call = 1;
         end
 

@@ -166,7 +166,7 @@ always @(posedge clk) begin
             dut.is_branch_greater_from_control_unit);
 
     if (dut.is_unconditional_branch_from_control_unit !== 1'b0)
-        $display("OF B                 = %b",
+        $display("OF UB                 = %b",
             dut.is_unconditional_branch_from_control_unit);
 
     if (dut.is_call_from_control_unit !== 1'b0)
@@ -433,13 +433,13 @@ initial begin
     //
     // dut.instruction_memory.memory[i] = ith instruction
 //     B target
-//     MOV R3, 8
+//     MOV R1, 8
 // target:
-//     MOV R3, 32
+//     MOV R1, 32
     // --------------------------------------------------
     dut.instruction_memory.memory[0] =
         32'b10010_000000000000000000000010000;
-    dut.instruction_memory.memory[2] =
+    dut.instruction_memory.memory[1] =
         32'b01001_1_0001_0000_00_0000000000001000;
     dut.instruction_memory.memory[16] =
         32'b01001_1_0001_0000_00_0000000000100000;
