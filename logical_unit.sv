@@ -15,7 +15,7 @@ always_comb begin
     result = 32'b0;
 
     or_result = first_operand | second_operand;
-    not_result = ~first_operand;
+    not_result = ~second_operand;
     and_result = first_operand & second_operand;
 
     if (is_or)

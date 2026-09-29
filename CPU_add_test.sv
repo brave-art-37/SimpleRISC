@@ -423,9 +423,10 @@ initial begin
     // PROGRAM
     //
     // dut.instruction_memory.memory[i] = ith instruction
+    // ADD R3 R1 R2
     // --------------------------------------------------
     dut.instruction_memory.memory[0] =
-        32'b00000000110001001000000000000000;
+        32'b00000_0_0011_0001_0010_00000000000000;
 
     // --------------------------------------------------
     // synchronous reset

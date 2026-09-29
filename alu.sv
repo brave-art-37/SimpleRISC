@@ -46,6 +46,8 @@ adder alu_adder(
     .is_add(is_add),
     .is_sub(is_sub),
     .is_cmp(is_cmp),
+    .is_load(is_load),
+    .is_store(is_store),
     .result(adder_line),
     .flags_equal(is_it_equal),
     .flags_greater(is_it_greater)

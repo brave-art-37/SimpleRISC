@@ -4,6 +4,8 @@ module adder(
     input logic is_add,
     input logic is_sub,
     input logic is_cmp,
+    input logic is_load,
+    input logic is_store,
     output logic [31:0] result,
     output logic flags_equal,
     output logic flags_greater
@@ -25,7 +27,7 @@ always_comb begin
     comparison_equal = (first_operand == second_operand);
     comparison_greater = (first_operand > second_operand);
 
-    if (is_add)
+    if (is_add | is_load | is_store)
         result = addition;
 
     else if (is_sub)

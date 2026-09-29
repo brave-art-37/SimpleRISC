@@ -30,7 +30,7 @@ always_comb begin
 
     // signed branch offset, word-aligned
     branch_target =
-        program_counter + ({{5{offset[26]}}, offset} << 2);
+        program_counter + ({{5{offset[26]}}, offset});
 
 end
 

@@ -12,7 +12,7 @@ logic [31:0] next_program_counter;
 assign program_counter = current_program_counter;
 
 mux #(.WIDTH(32)) program_counter_mux(
-    .a(current_program_counter + 32'd4), //next instruction
+    .a(current_program_counter + 32'd1), //next instruction
     .b(branch_program_counter), //jump or branch
     .s(is_branch_taken),
     .c(next_program_counter)

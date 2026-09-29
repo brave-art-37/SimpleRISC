@@ -43,8 +43,8 @@ module test;
         #1;
 
         $display(
-            "NOT: first=%h result=%h",
-            first_operand,
+            "NOT: second=%h result=%h",
+            second_operand,
             result
         );
 

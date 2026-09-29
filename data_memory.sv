@@ -11,7 +11,7 @@ logic [31:0] memory[0:(1<<10)-1];
 // word addressible --> 2^10 words
 // 1 word = 4 bytes --> 2^12 = 4KB memory
 
-assign read_data = memory[address[11:2]]; //last 2 bits removed to get word index
+assign read_data = memory[address[9:0]];
 
 always_ff @(posedge clk) begin
     if (store_enable)

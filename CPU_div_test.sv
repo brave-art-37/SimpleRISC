@@ -423,10 +423,10 @@ initial begin
     // PROGRAM
     //
     // dut.instruction_memory.memory[i] = ith instruction
-    // MOV R1 immediate
+    // DIV R3 R2 R1
     // --------------------------------------------------
     dut.instruction_memory.memory[0] =
-        32'b01001_1_0001_0000_00_1010101010101010;
+        32'b00011_0_0011_0001_0010_00000000000000;
 
     // --------------------------------------------------
     // synchronous reset
@@ -441,6 +441,8 @@ initial begin
     // pre-fill registers AFTER reset
     // dut.register_file.registers[i] = val of ith register;
     // --------------------------------------------------
+    dut.register_file.registers[1] = 32'd20;
+    dut.register_file.registers[2] = 32'd5;
 
 
     // --------------------------------------------------
@@ -507,10 +509,10 @@ initial begin
     // CHECK
     // check_register(register_no, expected_value);
     // --------------------------------------------------
+    check_register(3, 32'd4);
 
     $display("");
     $display("========== TEST COMPLETE ==========");
-    check_register(1, 32'b1010101010101010);
 
     $finish;
 end
