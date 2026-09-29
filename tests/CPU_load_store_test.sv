@@ -26,15 +26,6 @@ always @(posedge clk) begin
     $display("                    CYCLE %0d", cycle);
     $display("============================================================");
 
-    // ==================================================
-    // FLAGS
-    // ==================================================
-    $display("");
-    $display("--- FLAGS ---");
-    
-    $display("flags_equal = %b", dut.flags_equal);
-    $display("flags_greater = %b", dut.flags_greater);
-
 
     // ==================================================
     // IF STAGE
@@ -432,21 +423,34 @@ initial begin
     // PROGRAM
     //
     // dut.instruction_memory.memory[i] = ith instruction
-//     CALL function
-//     MOV R1, 8
 
-// function:
-//     MOV R2, 32
-//     RET
+    // MOV R1, 10
+    // MOV R2, 1
+
+    // NOP
+    // NOP
+    // NOP
+
+    // ST  R1, 1[R2]
+    // LD  R3, 1[R2]
+    
+    // ADD R4, R3, R1
+
     // --------------------------------------------------
     dut.instruction_memory.memory[0] =
-        32'b10011_000000000000000000000010000;
+        32'b01001_1_0001_0000_00_0000000000001010;
     dut.instruction_memory.memory[1] =
-        32'b01001_1_0001_0000_00_0000000000001000;
-    dut.instruction_memory.memory[16] =
-        32'b01001_1_0010_0000_00_0000000000100000;
-    dut.instruction_memory.memory[17] =
-        32'b10100_000000000000000000000000000;
+        32'b01001_1_0010_0000_00_0000000000000001;
+
+    dut.instruction_memory.memory[5] =
+        32'b01111_1_0001_0010_00_0000000000000001;
+
+    dut.instruction_memory.memory[6] =
+        32'b01110_0_0011_0010_00_0000000000000001;
+
+    dut.instruction_memory.memory[10] =
+        32'b00000_0_0100_0011_0001_00000000000000;
+
 
     // --------------------------------------------------
     // synchronous reset
@@ -466,7 +470,7 @@ initial begin
     // --------------------------------------------------
     // allow pipeline to execute program
     // --------------------------------------------------
-    run_cycles(9);
+    run_cycles(15);
 
 
     // --------------------------------------------------
@@ -527,9 +531,11 @@ initial begin
     // CHECK
     // check_register(register_no, expected_value);
     // --------------------------------------------------
-    check_register(1, 32'd8);
-    check_register(2, 32'd32);
-    check_register(15, 32'd2);
+    check_register(1, 32'd10);
+    check_register(2, 32'd1);
+    $display("data_memory[2] = %d", dut.data_memory.memory[2]);
+    check_register(3, 32'd10);
+    check_register(4, 32'd20);
 
     $display("");
     $display("========== TEST COMPLETE ==========");

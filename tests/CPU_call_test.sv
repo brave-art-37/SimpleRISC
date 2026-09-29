@@ -26,6 +26,15 @@ always @(posedge clk) begin
     $display("                    CYCLE %0d", cycle);
     $display("============================================================");
 
+    // ==================================================
+    // FLAGS
+    // ==================================================
+    $display("");
+    $display("--- FLAGS ---");
+    
+    $display("flags_equal = %b", dut.flags_equal);
+    $display("flags_greater = %b", dut.flags_greater);
+
 
     // ==================================================
     // IF STAGE
@@ -423,17 +432,25 @@ initial begin
     // PROGRAM
     //
     // dut.instruction_memory.memory[i] = ith instruction
-    // ADD R2 R1 0x1234
-    // ADD R3 R1 0x1234
+//     CALL function
+//     MOV R1, 8
+//     ADD R2 R2 1
+// (no stall required as 1 gap from RET + branch requires 2 stages to work --> 3 gaps b/w MOV R2 and ADD R2)
+
+// function:
+//     MOV R2, 32
+//     RET
     // --------------------------------------------------
     dut.instruction_memory.memory[0] =
-        32'b00000_1_0010_0001_01_0001001000110100;
+        32'b10011_000000000000000000000010000;
     dut.instruction_memory.memory[1] =
-        32'b00000_1_0011_0001_01_1111001000110100;
+        32'b01001_1_0001_0000_00_0000000000001000;
     dut.instruction_memory.memory[2] =
-        32'b00000_1_0100_0001_10_0001001000110100;
-    dut.instruction_memory.memory[3] =
-        32'b00000_1_0101_0001_10_1111111111111111;
+        32'b00000_1_0010_0010_00_0000000000000001;
+    dut.instruction_memory.memory[16] =
+        32'b01001_1_0010_0000_00_0000000000100000;
+    dut.instruction_memory.memory[17] =
+        32'b10100_000000000000000000000000000;
 
     // --------------------------------------------------
     // synchronous reset
@@ -448,13 +465,12 @@ initial begin
     // pre-fill registers AFTER reset
     // dut.register_file.registers[i] = val of ith register;
     // --------------------------------------------------
-    dut.register_file.registers[1] = 32'd5;
 
 
     // --------------------------------------------------
     // allow pipeline to execute program
     // --------------------------------------------------
-    run_cycles(9);
+    run_cycles(15);
 
 
     // --------------------------------------------------
@@ -467,7 +483,7 @@ initial begin
     for (integer i = 0; i < 16; i = i + 1)
         if (dut.register_file.registers[i] !== 32'b0)
             $display(
-                "R%0d = %d",
+                "R%0d = %h",
                 i,
                 dut.register_file.registers[i]
             );
@@ -515,10 +531,9 @@ initial begin
     // CHECK
     // check_register(register_no, expected_value);
     // --------------------------------------------------
-    check_register(2,  32'h12340005);
-    check_register(3,  32'hF2340005);
-    check_register(4,  32'h1239);
-    check_register(5,  32'h00010004);
+    check_register(1, 32'd8);
+    check_register(2, 32'd33);
+    check_register(15, 32'd2);
 
     $display("");
     $display("========== TEST COMPLETE ==========");
