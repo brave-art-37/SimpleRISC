@@ -1,55 +1,58 @@
 # SimpleRISC — Pipelined SystemVerilog CPU
 
-A from-scratch SystemVerilog implementation of the SimpleRISC processor.
+A from-scratch SystemVerilog implementation of the SimpleRISC processor, implemented as a pipelined CPU and simulated using Icarus Verilog.
 
-The project implements the SimpleRISC ISA as a pipelined CPU, including the datapath, control unit, register file, ALU, memory system, branching, CALL/RET, delayed branching, and immediate modes.
+The project follows the SimpleRISC architecture and ISA described in:
 
-The CPU is simulated using Icarus Verilog.
+**Basic Computer Architecture, Version 3.09**  
+**Smruti R. Sarangi**  
+**October 8, 2025**
 
 ---
 
 ## Features
 
-- Pipelined CPU datapath
-- SimpleRISC instruction set
-- 16 × 32-bit general-purpose registers
+- 5-stage pipelined CPU
+- SystemVerilog RTL implementation
 - 32-bit datapath
-- Arithmetic operations
+- 16 × 32-bit general-purpose registers
+- R15 used as the return-address register
+- SimpleRISC instruction set:
   - ADD
   - SUB
   - MUL
   - DIV
   - MOD
   - CMP
-- Logical operations
   - AND
   - OR
   - NOT
-- Shift operations
+  - MOV
   - LSL
   - LSR
   - ASR
-- MOV
-- NOP
-- Load / Store
-- Conditional branches
+  - NOP
+  - LD
+  - ST
   - BEQ
   - BGT
-- Unconditional branch
   - B
-- CALL / RET
-- Persistent comparison flags
+  - CALL
+  - RET
 - Immediate operands
-- U and H immediate modes
+- Immediate U/H modes
+- Persistent comparison flags
 - Delayed branching
 - Separate instruction and data memory
-- Two-port memory access for instruction fetch and data access
+- Word-addressed memory
+- Parallel functional units in the EX stage
+- Simulation-based verification using Icarus Verilog
 
 ---
 
 ## Architecture
 
-The processor is organized as a 5 stage pipeline:
+The processor uses a 5-stage pipeline:
 
 ```text
 IF → OF → EX → MA → RW
@@ -63,60 +66,102 @@ where:
 - **MA** — Memory Access
 - **RW** — Register Writeback
 
-Pipeline registers separate the stages:
+Pipeline registers:
 
 ```text
 IF → IFOF → OF → OFEX → EX → EXMA → MA → MARW → RW
 ```
 
----
+### Main datapath
 
-## Datapath
-
-The execution stage contains separate functional units for the major operation classes:
-
-```text
-                  ┌── Adder
-                  ├── Multiplier
-Operands ─────────┼── Divider
-                  ├── Shift Unit
-                  ├── Logical Unit
-                  └── Move Unit
-                         │
-                         ▼
-                       ALU
-```
-
-The ALU selects the result corresponding to the decoded instruction.
+View SimpleRISC.svg
 
 ---
 
-## Register File
+## Instruction Set
 
-The processor contains:
+The opcode encoding used by SimpleRISC is:
+
+| Instruction | Opcode  |
+| ----------- | ------- |
+| ADD         | `00000` |
+| SUB         | `00001` |
+| MUL         | `00010` |
+| DIV         | `00011` |
+| MOD         | `00100` |
+| CMP         | `00101` |
+| AND         | `00110` |
+| OR          | `00111` |
+| NOT         | `01000` |
+| MOV         | `01001` |
+| LSL         | `01010` |
+| LSR         | `01011` |
+| ASR         | `01100` |
+| NOP         | `01101` |
+| LD          | `01110` |
+| ST          | `01111` |
+| BEQ         | `10000` |
+| BGT         | `10001` |
+| B           | `10010` |
+| CALL        | `10011` |
+| RET         | `10100` |
+
+The complete instruction encoding follows the SimpleRISC specification.
+
+---
+
+## Functional Units
+
+The EX stage contains parallel functional units:
 
 ```text
-16 registers × 32 bits
+                        ┌────────────┐
+first operand ─────►|-->│   Adder    │───┐
+                    |   └────────────┘   │
+                    |                    │
+                    |   ┌────────────┐   │
+second operand ────►|-->│ Multiplier │───┤
+                    |   └────────────┘   │
+                    |                    │
+                    |   ┌────────────┐   │
+                    |-->│  Divider   │───┤
+                    |   └────────────┘   │
+                    |                    │
+                    |   ┌────────────┐   │
+                    |-->│ Shift Unit │───┤
+                    |   └────────────┘   │
+                    |                    │
+                    |   ┌────────────┐   │
+                    |-->│Logical Unit│───┤
+                    |   └────────────┘   │
+                    |                    │
+                    |   ┌────────────┐   │
+                    |-->│ Move Unit  │───┤
+                        └────────────┘   │
+                                         ▼
+                              ┌────────────┐
+                              │ Result MUX │
+                              └────────────┘
 ```
 
-with two read ports and one write port.
-
-Register `R15` is used as the return-address register for `CALL` / `RET`.
+This keeps the functional units structurally separate and selects the required result through multiplexing.
 
 ---
 
 ## Comparison Flags
 
-`CMP` produces the comparison flags:
+`CMP` produces two comparison flags:
 
-```text
-equal
-greater
-```
+- `flags_equal`
+- `flags_greater`
 
 These are stored in persistent flag registers.
 
-The flags are updated when the `CMP` instruction reaches the execute stage and are subsequently consumed by branch instructions such as `BEQ` and `BGT`.
+The flags are updated when a `CMP` instruction reaches the EX stage.
+
+Branch instructions such as `BEQ` and `BGT` consume these persistent flags later.
+
+This is necessary because `CMP` and the corresponding branch are separate instructions moving through the pipeline.
 
 ---
 
@@ -124,136 +169,133 @@ The flags are updated when the `CMP` instruction reaches the execute stage and a
 
 The processor uses delayed branching.
 
-The instruction following a branch is therefore part of the branch delay slot.
+The instruction immediately following a branch is therefore executed as the branch delay slot.
 
 For example:
 
 ```text
 B target
-<delay-slot instruction>
-...
+instruction_after_branch
 target:
+...
 ```
 
-`CALL` is treated as an unconditional branch while also saving the return address.
+The instruction after `B` is intentionally executed before control transfers to `target`.
 
-Because the processor uses word-addressed instruction memory, the return address for `CALL` is:
+### CALL / RET
+
+`CALL` stores the return address in register `R15`.
+
+Because of delayed branching and the word-addressed PC, the return address is:
 
 ```text
 PC + 2
 ```
 
-This accounts for the delayed branch instruction.
+`RET` reads the return address from `R15` and transfers control to it.
 
 ---
 
 ## Memory
 
-Instruction and data memory are separate.
+The processor uses separate instruction and data memories.
 
-The processor uses word addressing for the memories.
+This allows instruction fetch and data-memory access to occur independently.
 
-The instruction memory and data memory can therefore be accessed independently during the same cycle.
+The memories are word-addressed.
 
-The memory arrays use a 10-bit index:
+For the current implementation:
 
 ```text
 address[9:0]
 ```
 
----
+selects a memory word.
 
-## Immediate Modes
-
-The processor supports immediate operands, including the `U` and `H` modes defined by the SimpleRISC specification.
-
-Immediate decoding is handled before the execute stage and the selected immediate is passed through the pipeline to the ALU.
+The data memory contains 1024 words of 32 bits each.
 
 ---
 
-## Hazard Handling
+## Immediate Values
 
-The implementation does not contain general-purpose hardware hazard detection or forwarding.
+The processor supports immediate operands through the SimpleRISC immediate encoding.
 
-Hazards that are not handled directly by the datapath are therefore expected to be handled by software/instruction scheduling according to the processor's timing.
+The implementation handles:
 
-The memory structural hazard is handled by the separate instruction/data memory access paths.
+- normal immediate values
+- U-mode immediates
+- H-mode immediates
+- signed immediate values where specified by the instruction encoding
+
+Immediate values are generated by the immediate/branch-target unit before reaching the EX stage.
 
 ---
 
-## Verification
+## Hazards
 
-The CPU was developed bottom-up.
+This implementation does NOT include general hardware hazard detection or forwarding.
 
-Individual components were tested first:
+Instruction scheduling is therefore expected to respect data dependencies.
+
+The design does NOT use a general-purpose pipeline stall/forwarding mechanism.
+
+The separate instruction and data memories avoid a structural conflict between instruction fetch and data-memory access.
+
+---
+
+## Project Structure
 
 ```text
-mux
-mux2
-mux3
-program counter
-control unit
-register file
-immediate / branch target unit
-adder
-multiplier
-divider
-shift unit
-logical unit
-move unit
-ALU
-memory access unit
-pipeline registers
+SimpleRISC/
+│
+├── rtl/
+│   ├── CPU.sv
+│   ├── program_counter_manager.sv
+│   ├── control_unit.sv
+│   ├── register_file.sv
+│   ├── immediate_branch_target.sv
+│   │
+│   ├── adder.sv
+│   ├── multiplier.sv
+│   ├── divider.sv
+│   ├── shift_unit.sv
+│   ├── logical_unit.sv
+│   ├── move_unit.sv
+│   ├── ALU.sv
+│   │
+│   ├── branch_unit_mux.sv
+│   ├── memory_access_unit.sv
+│   ├── data_memory.sv
+│   ├── instruction_memory.sv
+│   │
+│   ├── IFOF.sv
+│   ├── OFEX.sv
+│   ├── EXMA.sv
+│   └── MARW.sv
+│
+├── tests/
+│   └── ...
+│
+└── README.md
 ```
 
-Individual instructions were then tested through the complete CPU.
-
-The instruction-level tests cover:
-
-```text
-ADD
-SUB
-MUL
-DIV
-MOD
-CMP
-AND
-OR
-NOT
-MOV
-LSL
-LSR
-ASR
-NOP
-LD
-ST
-BEQ
-BGT
-B
-CALL
-RET
-```
-
-Immediate modes were also tested, including positive and negative values.
-
-After instruction-level verification, multi-instruction programs were used to test interaction between instructions and pipeline stages.
+The exact filenames may change as the project evolves.
 
 ---
 
-## Running the CPU
+## Simulation
 
 ### Requirements
 
-- SystemVerilog simulator
+- SystemVerilog-compatible simulator
 - Icarus Verilog
-- macOS/Linux/Windows environment with a working shell
 
 ### Compile
 
-From the project directory:
+From the project root:
 
 ```bash
-iverilog -g2012 -o sim rtl/*.sv tests/[name_of_test_file].sv
+iverilog -g2012 -o sim rtl/*.sv tests/<test_file>.sv
 ```
 
 ### Run
@@ -262,13 +304,11 @@ iverilog -g2012 -o sim rtl/*.sv tests/[name_of_test_file].sv
 vvp sim
 ```
 
-The testbench prints the processor state and reports the results of the checks.
-
 ---
 
-## Writing a Program
+## Writing a Test Program
 
-At the current stage, programs can be loaded directly into instruction memory from the testbench.
+Instructions can be loaded directly into the instruction memory from a testbench.
 
 For example:
 
@@ -278,103 +318,145 @@ dut.instruction_memory.memory[1] = 32'b...;
 dut.instruction_memory.memory[2] = 32'b...;
 ```
 
-The CPU can then be run for a chosen number of clock cycles:
+The CPU can then be allowed to run for a specified number of clock cycles:
 
 ```systemverilog
 run_cycles(20);
 ```
 
-and the architectural state can be inspected through the register file and memory.
-
-Example register check:
+Register values can be inspected through the register file:
 
 ```systemverilog
-check_register(3, 32'd12);
+dut.register_file.registers[3]
+```
+
+Data memory can similarly be inspected:
+
+```systemverilog
+dut.data_memory.memory[10]
 ```
 
 ---
 
-## Project Structure
+## Verification
 
-A suggested repository layout is:
+The processor was developed and tested bottom-up.
 
-```text
-.
-├── rtl/
-│   ├── CPU.sv
-│   ├── ALU.sv
-│   ├── control_unit.sv
-│   ├── register_file.sv
-│   ├── program_counter_manager.sv
-│   ├── instruction_memory.sv
-│   ├── data_memory.sv
-│   ├── ...
-│
-├── tests/
-│   ├── CPU_tb.sv
-│   ├── ALU_tb.sv
-│   ├── register_file_tb.sv
-│   ├── ...
-│
-├── programs/
-│   └── ...
-│
-├── README.md
-└── REPORT.md
-```
+Individual components were tested before being integrated into the full CPU.
 
-The exact filenames may vary depending on the repository organization.
+Tests include:
+
+- multiplexers
+- program counter
+- control unit
+- register file
+- immediate generation
+- branch target generation
+- adder
+- multiplier
+- divider
+- shift unit
+- logical unit
+- move unit
+- ALU
+- branch unit
+- memory access unit
+- pipeline registers
+- writeback logic
+- complete CPU execution
+
+Instruction-level tests cover:
+
+- arithmetic operations
+- multiplication
+- division
+- modulo
+- comparison
+- logical operations
+- shifts
+- MOV
+- NOP
+- loads and stores
+- conditional branches
+- unconditional branches
+- CALL / RET
+- immediate operands
+
+Multi-instruction programs were also tested to verify interaction between pipeline stages and persistent processor state.
 
 ---
 
 ## Design Philosophy
 
-This project is primarily a hands-on implementation of a known educational RISC architecture.
+The project is intended as a hands-on implementation of a processor rather than an attempt to invent a new ISA or microarchitecture.
 
-The goal was to understand how an ISA becomes an actual clocked datapath:
+The SimpleRISC architecture and instruction set provide the specification.
+
+The focus of the project is translating that specification into working RTL and understanding how:
 
 ```text
-ISA
- ↓
-instruction encoding
- ↓
-control signals
- ↓
-datapath
- ↓
-pipeline
- ↓
-clocked state
- ↓
-working CPU
+instruction
+    ↓
+fetch
+    ↓
+decode
+    ↓
+operand selection
+    ↓
+execution
+    ↓
+memory access
+    ↓
+writeback
 ```
 
-Rather than treating the processor as a black box, the implementation was built and debugged component by component.
+becomes an actual clocked hardware implementation.
 
 ---
 
 ## Current Status
 
-The CPU currently passes the instruction-level test suite and has been exercised with multi-instruction programs.
+The core SimpleRISC processor is implemented in SystemVerilog and has been tested through individual components and multi-instruction programs.
 
-The implementation is intended as an educational CPU implementation and simulation project rather than a production processor.
+The current implementation includes:
 
----
+- 5-stage pipeline
+- arithmetic and logical execution
+- immediate operands
+- memory operations
+- persistent comparison flags
+- conditional and unconditional branches
+- delayed branching
+- CALL / RET
+- separate instruction/data memory
+- register writeback
 
-## Future Work
-
-Possible future improvements include:
-
-- assembler for SimpleRISC
-- program loader
-- cleaner program-level test framework
-- waveform-based debugging
-- SystemVerilog assertions
-- automated regression tests
-- additional example programs
-- more formal verification
-- hardware hazard detection / forwarding, if desired
+Further work can include more extensive verification, assertions, waveform-based debugging, hazard handling, and additional architectural features.
 
 ---
 
-## License
+## Source / Attribution
+
+The SimpleRISC architecture and ISA used in this project are based on:
+
+**Smruti R. Sarangi, *Basic Computer Architecture*, Version 3.09, October 8, 2025.**
+
+The source material is licensed under the:
+
+**Creative Commons Attribution-NoDerivs 4.0 International License (CC BY-ND 4.0)**
+
+Source:
+
+[https://creativecommons.org/licenses/by-nd/4.0/](https://creativecommons.org/licenses/by-nd/4.0/)
+
+The RTL implementation in this repository was written as an independent SystemVerilog implementation of the specified architecture.
+
+---
+
+## Author
+
+**Aarav**
+
+GitHub:
+
+[https://github.com/brave-art-37/SimpleRISC](https://github.com/brave-art-37/SimpleRISC)
