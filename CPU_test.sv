@@ -424,8 +424,7 @@ initial begin
     //
     // dut.instruction_memory.memory[i] = ith instruction
     // --------------------------------------------------
-    dut.instruction_memory.memory[0] =
-        32'b01001100010000001010101010101010;
+
 
     // --------------------------------------------------
     // synchronous reset
@@ -509,7 +508,6 @@ initial begin
 
     $display("");
     $display("========== TEST COMPLETE ==========");
-    check_register(1, 32'b1010101010101010);
 
     $finish;
 end
