@@ -18,27 +18,15 @@ The project follows the SimpleRISC architecture and ISA described in:
 - 16 × 32-bit general-purpose registers
 - R15 used as the return-address register
 - SimpleRISC instruction set:
-  - ADD
-  - SUB
-  - MUL
-  - DIV
-  - MOD
+  - ADD, SUB, MUL, DIV, MOD
   - CMP
-  - AND
-  - OR
-  - NOT
+  - AND, OR, NOT
   - MOV
-  - LSL
-  - LSR
-  - ASR
+  - LSL, LSR, ASR
   - NOP
-  - LD
-  - ST
-  - BEQ
-  - BGT
-  - B
-  - CALL
-  - RET
+  - LD, ST
+  - BEQ, BGT, B
+  - CALL, RET
 - Immediate operands
 - Immediate U/H modes
 - Persistent comparison flags
@@ -75,6 +63,76 @@ IF → IFOF → OF → OFEX → EX → EXMA → MA → MARW → RW
 ### Main datapath
 
 ![SimpleRISC Architecture](SimpleRISC.svg)
+
+## Abbreviations
+
+### Architecture / Node Abbreviations
+
+| Abbreviation | Meaning |
+|---|---|
+| IF | Instruction Fetch |
+| OF | Operand Fetch |
+| EX | Execute |
+| MA | Memory Access |
+| RW | Register Writeback |
+| IFOF | Instruction Fetch / Operand Fetch pipeline register |
+| OFEX | Operand Fetch / Execute pipeline register |
+| EXMA | Execute / Memory Access pipeline register |
+| MARW | Memory Access / Register Writeback pipeline register |
+| PCM | Program Counter Manager |
+| IM | Instruction Memory |
+| CU | Control Unit |
+| F1 | First Operand MUX |
+| F2 | Second Operand MUX |
+| RF | Register File |
+| IBT | Immediate / Branch Target |
+| ALU | Arithmetic Logic Unit |
+| BU | Branch Unit |
+| MAU | Memory Access Unit |
+| DM | Data Memory |
+| WAR | Write Address MUX |
+| WDM | Write Data MUX |
+| RAR | Return Address Register |
+| PC | Program Counter |
+| ISA | Instruction Set Architecture |
+| RTL | Register-Transfer Level |
+| TB | Testbench |
+
+### Signal Abbreviations
+
+| Abbreviation | Meaning |
+|---|---|
+| pc | Program Counter |
+| i | Instruction |
+| ret | Return |
+| st | Store |
+| r1 | First Operand Register |
+| r2 | Second Operand Register |
+| c | Control Signals |
+| a | First Operand |
+| b | Second Operand |
+| bt | Branch Target |
+| imm | Immediate |
+| ac | ALU Signals |
+| r | ALU Result |
+| f | Flags |
+| beq | Branch Equal |
+| bgt | Branch Greater |
+| ub | Unconditional Branch |
+| taken | Branch Taken |
+| bpc | Branch Program Counter |
+| ld | Load |
+| ma | Memory Address |
+| md | Memory Data |
+| ldr | Load Result |
+| rd | Destination Register |
+| rs1 | First Source Register |
+| rs2 | Second Source Register |
+| addr | Address Port |
+| data | Data Port |
+| wb | Write Back |
+| en | Enable Port |
+| call | Call |
 
 ---
 

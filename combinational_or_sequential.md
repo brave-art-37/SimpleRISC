@@ -2,44 +2,44 @@
 
 ## Combinational
 
-CU = Control Unit x
+CU = Control Unit
 
-MAU = Memory Access Unit x
+MAU = Memory Access Unit
 
-F1 = First Operand MUX x
+F1 = First Operand MUX
 
-F2 = Second Operand MUX x
+F2 = Second Operand MUX
 
-IBT = Immediate / Branch Target x
+IBT = Immediate / Branch Target
 
-ALU = ALU x
+ALU = ALU
 
-BU = Branch Unit x
+BU = Branch Unit
 
-WAR = Write Address MUX x
+WAR = Write Address MUX
 
-WDM = Write Data MUX x
+WDM = Write Data MUX
 
-RAR = Return Address Register x
+RAR = Return Address Register
 
 ## Sequential
 
-PCM = Program Counter Manager x
+PCM = Program Counter Manager
 
-IF/OF x
+IF/OF
 
-OF/EX x
+OF/EX
 
-EX/MA x
+EX/MA
 
-MA/RW x
+MA/RW
 
 ## Mixed
 
 (reads combinational, writes sequential)
 
-IM = Instruction Memory x
+IM = Instruction Memory
 
-RF = Register File x
+RF = Register File
 
-DM = Data Memory x
+DM = Data Memory
