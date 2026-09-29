@@ -16,12 +16,12 @@ always_comb begin
     offset = instruction[26:0];
 
     if (mode == 2'b01) begin
-        // u mode: fill upper half
+        // h mode: fill upper half
         immediate = {half_immediate, 16'b0};
     end
     else if (mode == 2'b10) begin
-        // h mode: sign extend lower half
-        immediate = {{16{half_immediate[15]}}, half_immediate};
+        // u mode: sign extend lower half
+        immediate = {16'b0, half_immediate};
     end
     else begin
         // normal immediate
